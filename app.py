@@ -1,6 +1,6 @@
 from datetime import date
 from flask import Flask, render_template, request
-
+# для проверки
 app = Flask(__name__)
 
 # Настройка сценария

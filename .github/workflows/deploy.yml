@@ -26,6 +26,5 @@ jobs:
             cd ~/vanya
             git pull origin main
             source .venv/bin/activate
-            pip install -r requirements.txt || true
-            sudo systemctl restart vanya
+            sudo systemctl restart vanya || systemctl restart vanya          
           EOF

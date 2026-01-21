@@ -549,6 +549,12 @@ button:active { transform: translateY(0); }
   color: var(--accent);
 }
 
+#wish {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 140px;
+}
+
 .cake-layer {
   position: absolute;
   left: 50%;
@@ -1150,6 +1156,7 @@ const congratsSection = document.getElementById("congrats");
 const journeyScroll = document.getElementById("journeyScroll");
 const speedWarn = document.getElementById("speedWarn");
 const defaultSpeedWarnText = speedWarn?.textContent || "";
+const wishSection = document.getElementById("wish");
 const slowExponent = 2.4;
 const confettiAudio = document.getElementById("confettiSound");
 const wordCanvas = document.getElementById("wordCanvas");
@@ -1227,6 +1234,9 @@ window.addEventListener("resize", resizeCanvas);
 function showSection(id) {
   sections.forEach((sec) => sec.classList.toggle("active", sec.id === id));
   currentIndex = sections.findIndex((sec) => sec.id === id);
+  if (id === "wish" && wishSection) {
+    wishSection.scrollTop = 0;
+  }
   const isJourney = id === "congrats" || id === "candleSection";
   if (!isJourney) {
     journeyStarted = false;

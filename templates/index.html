@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>С ДР ЧУВААК</title>
+<style>
+:root {
+  --bg: #000;
+  --panel: rgba(255, 255, 255, 0.05);
+  --stroke: rgba(255, 255, 255, 0.12);
+  --text: #f6f7fb;
+  --muted: #8d8d93;
+  --accent: #e5e7ed;
+  --danger: #ff6b6b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0.01em;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+main {
+  position: relative;
+  min-height: 100vh;
+  z-index: 2;
+}
+
+section {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 64px 22px 80px;
+  text-align: center;
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(30px);
+  pointer-events: none;
+  transition: opacity 700ms cubic-bezier(0.25, 0.8, 0.25, 1), transform 700ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+section.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+h1, h2 {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+p {
+  margin: 0;
+  color: var(--muted);
+  max-width: 520px;
+}
+
+.eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.lead {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--accent);
+  text-shadow: 0 0 14px rgba(255,255,255,0.2);
+}
+
+.muted { color: var(--muted); }
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 260px;
+}
+
+input[type="date"],
+input[type="text"] {
+  background: #0d0d0f;
+  border: 1px solid var(--stroke);
+  color: var(--text);
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+input:focus {
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.06);
+}
+
+.date-wrap {
+  position: relative;
+  align-items: stretch;
+}
+
+.date-picker {
+  position: relative;
+  width: 100%;
+}
+
+.date-display {
+  background: #0d0d0f;
+  border: 1px solid var(--stroke);
+  color: var(--text);
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 0 0 rgba(255,255,255,0);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+  width: 100%;
+}
+
+.date-display:hover {
+  border-color: rgba(255,255,255,0.35);
+}
+
+.calendar {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 280px;
+  background: rgba(12, 12, 14, 0.95);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+  backdrop-filter: blur(12px);
+  padding: 12px;
+  z-index: 10;
+}
+
+.cal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  gap: 8px;
+}
+
+.cal-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.cal-month {
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: capitalize;
+}
+
+.cal-year-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 6px 10px;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cal-flag {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.cal-year-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: rgba(12,12,14,0.95);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.5);
+  backdrop-filter: blur(12px);
+  padding: 8px 6px;
+  width: 120px;
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 20;
+}
+
+.cal-year-list[hidden] {
+  display: none !important;
+}
+
+.cal-year-item {
+  text-align: center;
+  padding: 6px 4px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.cal-year-item:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-1px);
+}
+
+.cal-year-item.active {
+  background: rgba(255,255,255,0.18);
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
+
+.cal-nav {
+  background: rgba(255,255,255,0.08);
+  color: var(--accent);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 150ms ease, background 150ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cal-nav:hover { transform: translateY(-1px); }
+.cal-nav:active { transform: translateY(0); }
+
+.cal-year {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 6px 10px;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cal-weekdays,
+.cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.cal-weekdays span {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.cal-day {
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid transparent;
+  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.cal-day:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-1px);
+}
+
+.cal-day.selected {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.3);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+}
+
+.cal-day.muted {
+  color: rgba(255,255,255,0.35);
+}
+
+button {
+  background: #f5f5f7;
+  color: #111;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 220ms cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 220ms cubic-bezier(0.25, 0.8, 0.25, 1), background 220ms ease;
+  box-shadow: 0 0 0 rgba(255,255,255,0);
+}
+
+button:hover { transform: translateY(-1px); }
+button:active { transform: translateY(0); }
+
+.glow-btn {
+  position: relative;
+  overflow: hidden;
+  background: #f5f5f7;
+  color: #111;
+  box-shadow: 0 12px 30px rgba(255,255,255,0.08);
+}
+
+.glow-btn::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), transparent 55%);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.glow-btn:hover::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.glow-btn:hover {
+  box-shadow: 0 14px 36px rgba(255,255,255,0.18);
+  transform: translateY(-2px);
+}
+
+.glow-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 24px rgba(255,255,255,0.12);
+}
+
+#passportNext {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 450ms cubic-bezier(0.25, 0.8, 0.25, 1), transform 450ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+#passportNext.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.ghost {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--stroke);
+}
+
+.button-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.feedback {
+  min-height: 22px;
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.scroll-hint {
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.scroll-hint::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 28px;
+  margin: 10px auto 0;
+  background: var(--stroke);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.scroll-hint.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes pulse {
+  0% { transform: scaleY(1); opacity: 0.5; }
+  50% { transform: scaleY(1.2); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0.3; }
+}
+
+.candle-wrap {
+  position: relative;
+  width: 120px;
+  height: 220px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px;
+  transform-origin: center bottom;
+  opacity: 0;
+  transform: translateY(8px) scale(0.95);
+}
+
+.candle-body {
+  width: 24px;
+  height: 140px;
+  background: linear-gradient(180deg, #f4f4f4 0%, #b6b6b8 100%);
+  border-radius: 12px 12px 6px 6px;
+  box-shadow: 0 0 26px rgba(255, 255, 255, 0.12);
+  transform-origin: center bottom;
+}
+
+.flame {
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  margin-left: -11px;
+  width: 22px;
+  height: 38px;
+  background: radial-gradient(circle at 50% 30%, #ffeab6 0%, #ffb347 55%, rgba(255, 179, 71, 0.1) 100%);
+  border-radius: 50% 50% 50% 50%;
+  filter: blur(0.3px);
+  opacity: 0;
+  transform-origin: center bottom;
+}
+
+.flame.lit {
+  animation: flame-reveal 0.45s cubic-bezier(0.3, 0.9, 0.4, 1) forwards, flicker 1.2s ease-in-out infinite 0.3s;
+}
+
+@keyframes flicker {
+  0% { transform: translateX(-1px) scale(1); opacity: 1; }
+  50% { transform: translateX(1px) scale(0.95); opacity: 0.9; }
+  100% { transform: translateX(-1px) scale(1); opacity: 1; }
+}
+
+.flame.out {
+  animation: extinguish 0.6s ease forwards;
+}
+
+@keyframes extinguish {
+  0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0.3px); }
+  60% { opacity: 0.4; transform: translateY(-6px) scale(0.8); filter: blur(1px); }
+  100% { opacity: 0; transform: translateY(14px) scale(0.4); filter: blur(3px); }
+}
+
+@keyframes flame-reveal {
+  0% { opacity: 0; transform: translateY(-6px) scale(0.7); filter: blur(0.8px); }
+  55% { opacity: 1; transform: translateY(2px) scale(1.04); filter: blur(0.2px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0.3px); }
+}
+
+@keyframes candle-pop {
+  0% { opacity: 0; transform: translateY(18px) scale(0.92) rotate(-4deg); }
+  50% { opacity: 1; transform: translateY(-4px) scale(1.04) rotate(2deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+
+.candle-wrap.pop-in {
+  animation: candle-pop 620ms cubic-bezier(0.25, 0.9, 0.35, 1) forwards;
+}
+
+.candle-wrap.pop-in .candle-body {
+  animation: tilt-wiggle 520ms ease forwards;
+}
+
+@keyframes tilt-wiggle {
+  0% { transform: rotate(-5deg); }
+  40% { transform: rotate(3deg); }
+  70% { transform: rotate(-2deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.cake-scene {
+  position: relative;
+  width: min(340px, 88vw);
+  height: 260px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.cake {
+  position: absolute;
+  bottom: 0;
+  width: 210px;
+  height: 120px;
+  filter: drop-shadow(0 10px 26px rgba(0,0,0,0.5));
+  z-index: 1;
+}
+
+.candle-spot {
+  position: absolute;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 240px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+#candleSection h2 {
+  margin-bottom: 18px;
+}
+
+.long-note {
+  max-width: 720px;
+  margin: 12px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+  line-height: 1.7;
+  color: var(--accent);
+}
+
+.cake-layer {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) scaleY(0.2);
+  transform-origin: center bottom;
+  opacity: 0;
+  border-radius: 14px;
+}
+
+.cake-layer.layer-base {
+  bottom: 0;
+  width: 210px;
+  height: 70px;
+  background: linear-gradient(180deg, #f0d2a8 0%, #d9a35f 100%);
+}
+
+.cake-layer.layer-cream {
+  bottom: 46px;
+  width: 190px;
+  height: 56px;
+  background: linear-gradient(180deg, #ffeef6 0%, #ffb7d5 100%);
+  box-shadow: 0 10px 22px rgba(255,183,213,0.25);
+}
+
+.cake-dots {
+  position: absolute;
+  bottom: 62px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 12px;
+  background: radial-gradient(circle at 10% 60%, #fff 0 32%, transparent 32%),
+              radial-gradient(circle at 40% 40%, #ffe17b 0 32%, transparent 32%),
+              radial-gradient(circle at 70% 50%, #c6f7d0 0 32%, transparent 32%),
+              radial-gradient(circle at 90% 60%, #b7d7ff 0 32%, transparent 32%);
+  opacity: 0;
+  transform-origin: center bottom;
+}
+
+.cake.building .cake-layer.layer-base {
+  animation: cake-rise 700ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.cake.building .cake-layer.layer-cream {
+  animation: cake-rise 900ms cubic-bezier(0.23, 1, 0.32, 1) forwards 180ms;
+}
+
+.cake.building .cake-dots {
+  animation: cake-rise 820ms cubic-bezier(0.23, 1, 0.32, 1) forwards 320ms;
+}
+
+@keyframes cake-rise {
+  0% { transform: translateX(-50%) scaleY(0.2); opacity: 0; }
+  55% { opacity: 1; }
+  100% { transform: translateX(-50%) scaleY(1); opacity: 1; }
+}
+
+.candle-hand {
+  position: absolute;
+  bottom: 46px;
+  left: -90px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  transform: translate(-50px, 16px) rotate(-10deg);
+  z-index: 3;
+}
+
+.candle-hand.move-in {
+  animation: hand-place 700ms cubic-bezier(0.25, 0.9, 0.35, 1) forwards;
+}
+
+.candle-hand.move-out {
+  animation: hand-exit 520ms cubic-bezier(0.25, 0.9, 0.35, 1) forwards;
+}
+
+@keyframes hand-place {
+  0% { opacity: 0; transform: translate(-60px, 20px) rotate(-12deg); }
+  60% { opacity: 1; transform: translate(-10px, -4px) rotate(-2deg); }
+  100% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes hand-exit {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+  100% { opacity: 0; transform: translate(-50px, 16px) rotate(-10deg); }
+}
+
+.hand-shape {
+  width: 58px;
+  height: 28px;
+  background: linear-gradient(180deg, #f7c9a6 0%, #e5a576 100%);
+  border-radius: 16px 16px 14px 14px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+}
+
+.match {
+  position: relative;
+  width: 18px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.match::before {
+  content: "";
+  position: absolute;
+  inset: 6px 7px 0 7px;
+  background: linear-gradient(180deg, #8a5a2f 0%, #6b3f1a 100%);
+  border-radius: 4px;
+}
+
+.match-head {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  width: 10px;
+  height: 12px;
+  border-radius: 5px 5px 4px 4px;
+  background: radial-gradient(circle at 40% 30%, #ff9f43 0%, #ff5f52 80%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+}
+
+.lighter-flame {
+  position: absolute;
+  top: -12px;
+  left: 5px;
+  width: 8px;
+  height: 12px;
+  border-radius: 50% 50% 40% 40%;
+  background: radial-gradient(circle at 50% 20%, #ffd79a 0%, #ff9f43 60%, rgba(255,159,67,0.1) 100%);
+  opacity: 0;
+  transform: translateY(3px) scale(0.55);
+  transition: opacity 140ms ease, transform 140ms ease;
+  filter: blur(0.2px);
+}
+
+.lighter-flame.ignite {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.candle-wrap.slide-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: transform 650ms cubic-bezier(0.28, 0.9, 0.35, 1), opacity 650ms ease;
+  z-index: 2;
+}
+.age-circle {
+  position: absolute;
+  bottom: 22px;
+  right: -38px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1px solid var(--stroke);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(6px);
+  transform: translateY(0);
+  transition: transform 4000ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.age-circle.raise {
+  transform: translateY(var(--age-rise, -60px));
+}
+
+
+.photo-frame {
+  width: min(82vw, 520px);
+  aspect-ratio: 3 / 4;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--stroke);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.photo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.badge {
+  position: fixed;
+  top: 16px;
+  right: 18px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--accent);
+  border: 1px solid var(--stroke);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.badge .linkish {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  padding: 0;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 14px rgba(255,255,255,0.18));
+  z-index: 0;
+}
+
+#wordCanvas {
+  z-index: 1;
+}
+
+.passport-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--stroke);
+  border-radius: 18px;
+  padding: 18px 18px 16px;
+  width: min(360px, 90vw);
+  margin-top: 8px;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+  text-align: left;
+}
+
+.passport-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.passport-row:last-child {
+  border-bottom: none;
+}
+
+.passport-label {
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+
+.passport-value {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.passport-value.status-line {
+  transition: opacity 320ms ease;
+}
+
+.passport-value.status-line.fading {
+  opacity: 0;
+}
+
+.pass-loader {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  margin-top: 10px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.pass-loader-fill {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  background: rgba(255,255,255,0.35);
+  transition: width 120ms linear, background 200ms ease;
+}
+
+.pass-loader-fill.done {
+  background: #fff;
+}
+
+.pass-loader.hidden {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+
+.journey-scroll {
+  display: none;
+  height: 1400vh;
+}
+
+body.journey .journey-scroll {
+  display: none;
+}
+
+#congrats .headline,
+#congrats .drift-line {
+  transform: translateY(calc(-30px * var(--path-progress, 0)));
+  opacity: 1;
+  transition: transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1), opacity 400ms ease;
+  text-shadow: 0 8px 26px rgba(0,0,0,0.35), 0 0 22px rgba(255,255,255,0.18);
+  z-index: 3;
+  position: relative;
+  color: var(--text);
+}
+
+#pathLayer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.06), transparent 30%),
+              radial-gradient(circle at 70% 60%, rgba(255,255,255,0.04), transparent 35%);
+  animation: breathe 7s ease-in-out infinite;
+  z-index: 1;
+}
+
+.path-word {
+  position: absolute;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 400ms ease, transform 400ms ease;
+  font-size: clamp(18px, 3vw, 26px);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 12px rgba(255,255,255,0.35);
+}
+
+.path-word.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.life-stats {
+  position: fixed;
+  top: 16vh;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: min(90vw, 640px);
+  height: 180px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  z-index: 3;
+}
+
+.life-stats.visible { opacity: 1; }
+
+.stat-card {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, 12px);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  padding: 18px 20px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transform: translateY(12px);
+  opacity: 0;
+  transition: opacity 400ms ease, transform 400ms ease, border-color 400ms ease;
+}
+
+.stat-card.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  color: var(--accent);
+  font-size: clamp(26px, 4vw, 34px);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 18px rgba(255,255,255,0.25);
+}
+
+.stat-note {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.orb {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), rgba(255,255,255,0.02));
+  filter: blur(1px);
+  opacity: 0.45;
+  animation: drift 12s ease-in-out infinite alternate;
+}
+
+@keyframes breathe {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+@keyframes drift {
+  0% { transform: translate(0, 0) scale(0.9); }
+  100% { transform: translate(18px, -12px) scale(1.05); }
+}
+
+#speedWarn {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.65);
+  color: var(--accent);
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 200ms ease, transform 200ms ease;
+  pointer-events: none;
+}
+
+#speedWarn.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(4px);
+}
+
+@media (max-width: 640px) {
+  section { padding: 48px 18px 60px; }
+  h1 { font-size: 30px; }
+  .lead { font-size: 17px; }
+  .age-circle { right: -26px; width: 52px; height: 52px; font-size: 20px; }
+  .candle-wrap { height: 200px; }
+}
+</style>
+</head>
+<body data-birth="{{ birth_iso }}" data-age="{{ age }}" data-test="{{ 1 if test_mode else 0 }}">
+<canvas id="confettiCanvas" class="confetti-layer"></canvas>
+<canvas id="fireCanvas" class="confetti-layer"></canvas>
+<canvas id="wordCanvas" class="confetti-layer"></canvas>
+<div id="pathLayer" style="display:none"></div>
+<div id="journeyScroll" class="journey-scroll" style="display:none"></div>
+<div id="speedWarn">Не спеши, прокручивай плавно</div>
+<audio id="confettiSound" src="/static/confetti.mp3" preload="auto"></audio>
+{% if test_mode %}
+<div class="badge" id="testBadge">
+  <span>TEST MODE</span>
+  <button type="button" class="linkish" id="resetButton">Сброс</button>
+</div>
+{% endif %}
+<main>
+  <section id="check" class="active">
+    <p class="eyebrow">Ты точно Ваня??????</p>
+    <h1>воообщем потвирди дату рожденя</h1>
+    <div class="form date-wrap">
+      <div class="date-picker" id="datePicker">
+        <input type="text" class="date-display" id="dateDisplay" role="button" aria-label="Выбери дату" placeholder="дд.мм.гггг" autocomplete="off">
+        <div class="calendar" id="calendar" hidden>
+          <div class="cal-header">
+            <button type="button" class="cal-nav" id="calPrev">‹</button>
+            <div class="cal-title" id="calTitle">
+              <div class="cal-month" id="calMonth"></div>
+              <div class="cal-year-toggle" id="calYearToggle">
+                <span id="calYearDisplay"></span>
+                <span class="cal-flag">⌄</span>
+                <div class="cal-year-list" id="calYearList" hidden></div>
+              </div>
+            </div>
+            <button type="button" class="cal-nav" id="calNext">›</button>
+          </div>
+          <div class="cal-weekdays">
+            <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
+          </div>
+          <div class="cal-days" id="calDays"></div>
+        </div>
+      </div>
+      <button class="glow-btn" id="confirmBtn">Вроде правильна</button>
+    </div>
+    <div id="feedback" class="feedback"></div>
+  </section>
+
+  <section id="passport">
+    <p class="eyebrow">Паспарт</p>
+    <h2>Сегодня точно твой день рождения?</h2>
+    <p class="muted">Проверяю данные в интернете...</p>
+    <div class="passport-card" id="passportCard">
+      <div class="passport-row"><span class="passport-label">ФИО</span><span class="passport-value" id="passName">Виликсар Иван Степанович</span></div>
+      <div class="passport-row"><span class="passport-label">Дата рождения</span><span class="passport-value" id="passDate">27.01.2009</span></div>
+      <div class="passport-row"><span class="passport-label">Лет исполнилось</span><span class="passport-value" id="passAge">17</span></div>
+      <div class="passport-row"><span class="passport-label">Статус проверки</span><span class="passport-value status-line" id="passStatus">Проверяю данные в интернете</span></div>
+      <div class="pass-loader" id="passLoader"><div class="pass-loader-fill" id="passLoaderFill"></div></div>
+    </div>
+    <button class="glow-btn passport-next" id="passportNext">Ахуена чуваааак</button>
+  </section>
+
+  <section id="congrats">
+    <p class="eyebrow">ахиреть крута да?</p>
+    <h1 class="headline">ПОЗДРАВЛЯЮ!!!</h1>
+    <p class="lead drift-line">В каком возрасте последний раз задувал свечку?</p>
+    <div class="scroll-hint" id="scrollHint" style="display:none">Прокрути вниз</div>
+    <button class="glow-btn" id="nextCongrats">Дальше</button>
+  </section>
+
+  <section id="candleSection">
+    <h2>Перед тем как задуть — загадай желание</h2>
+    <div class="cake-scene">
+      <div class="cake" id="cake">
+        <div class="cake-layer layer-base"></div>
+        <div class="cake-layer layer-cream"></div>
+        <div class="cake-dots"></div>
+      </div>
+      <div class="candle-hand" id="candleHand">
+        <div class="hand-shape"></div>
+        <div class="match">
+          <div class="match-head"></div>
+        <div class="lighter-flame" id="lighterFlame"></div>
+      </div>
+      </div>
+      <div class="candle-spot">
+        <div class="candle-wrap" id="candleWrap">
+          <div class="candle-body"></div>
+          <div class="flame" id="flame"></div>
+          <div class="age-circle" id="ageCircle">{{ age }}</div>
+      </div>
+    </div>
+    </div>
+    <button id="blowButton">Задуть свечу</button>
+    <audio id="blowSound" src="/static/blow.mp3" preload="auto"></audio>
+  </section>
+
+  <section id="wish">
+    <p class="eyebrow"></p>
+    <h2>Поздравляю с 17-летием, чувак!</h2>
+    <div class="long-note">
+      <p>Решил не делать что-то банальное по типу "с др бро" в нашем тг чате. Решил немного подзаморочиться и сделать сайт в честь такого чудесного дня.</p>
+      <p>17 лет — это не 16, а 16 лет — это не 17. Хочу пожелать тебе, чтобы ты с этого возраста перестал быть капризным к себе. Больше любви к себе. Ты уникален по-своему. Не помню, говорил ли я это на новый год...</p>
+      <p>Пусть у тебя будет больше моментов, где не нужно оправдываться, не нужно спешить, не нужно тревожиться, не нужно много дрочить.</p>
+      <p>Уверен, ты сдашь все экзамены, поступишь везде, где тебе хочется самому! Слышишь? Хочется самому! И наконец обретёшь своё счастье, перестанешь жить в одиночестве и тоске.</p>
+      <p>Я рад, что ты есть, хоть ты и игноришь меня днями, хоть ты и забываешь про меня на следующий, хоть ты и не пишешь мне вообще, хоть ты и такое чмо.</p>
+      <p><strong>С днём рождения, Щенок.</strong></p>
+    </div>
+  </section>
+</main>
+
+<script>
+const birthIso = document.body.dataset.birth;
+const ageYears = parseInt(document.body.dataset.age, 10) || 0;
+const isTest = document.body.dataset.test === "1";
+const sections = Array.from(document.querySelectorAll("section"));
+let currentIndex = 0;
+let journeyStarted = false;
+let journeyKick = 140;
+let journeyDelta = 0;
+let scrollArmed = false;
+let scrollCooldown = false;
+let touchStartY = 0;
+let pathProgress = 0;
+
+const feedback = document.getElementById("feedback");
+const scrollHint = document.getElementById("scrollHint");
+const confettiCanvas = document.getElementById("confettiCanvas");
+const ctx = confettiCanvas.getContext("2d");
+let confettiPieces = [];
+let confettiActive = false;
+let wordParticles = [];
+let wordFired = false;
+const pathLayer = document.getElementById("pathLayer");
+const lifeStats = null; // отключено
+const congratsSection = document.getElementById("congrats");
+const journeyScroll = document.getElementById("journeyScroll");
+const speedWarn = document.getElementById("speedWarn");
+const defaultSpeedWarnText = speedWarn?.textContent || "";
+const slowExponent = 2.4;
+const confettiAudio = document.getElementById("confettiSound");
+const wordCanvas = document.getElementById("wordCanvas");
+const wctx = wordCanvas.getContext("2d");
+const fireCanvas = document.getElementById("fireCanvas");
+const fctx = fireCanvas.getContext("2d");
+let passportTimers = [];
+const passportNextBtn = document.getElementById("passportNext");
+const passNameEl = document.getElementById("passName");
+const passDateEl = document.getElementById("passDate");
+const passAgeEl = document.getElementById("passAge");
+const passStatusEl = document.getElementById("passStatus");
+const passLoader = document.getElementById("passLoader");
+const passLoaderFill = document.getElementById("passLoaderFill");
+const cake = document.getElementById("cake");
+const candleHand = document.getElementById("candleHand");
+const lighterFlame = document.getElementById("lighterFlame");
+const passportDefaults = {
+  name: passNameEl?.textContent?.trim() || "",
+  date: passDateEl?.textContent?.trim() || "",
+  age: passAgeEl?.textContent?.trim() || "",
+};
+let loaderProgress = 0;
+let loaderFrame = null;
+const ageCircle = document.getElementById("ageCircle");
+const candleWrap = document.querySelector(".candle-wrap");
+const flameEl = document.getElementById("flame");
+let ageAnimationFrame = null;
+let ageRiseDelayTimer = null;
+let candleRevealTimer = null;
+let candleTimers = [];
+let candleReadyAt = 0;
+const pathWords = [];
+const floatingWords = [];
+const statCards = [
+  { key: "hours", label: "Часов прожито", note: "Без лишних оправданий" },
+  { key: "days", label: "Дней наполнено", note: "Каждый — кирпич" },
+  { key: "nights", label: "Ночей пересмотрено", note: "Темнота — тоже часть пути" },
+  { key: "hearts", label: "Сердец зажжено (примерно)", note: "Человеческий фактор" },
+];
+let statsData = {};
+const confettiColors = ["#ff6b6b", "#ffd166", "#7ae582", "#70a1ff", "#c3aed6", "#f7aef8", "#ffe66d"];
+const statAnimated = {};
+const today = new Date();
+const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+let selectedDateIso = "";
+let calendarOpen = false;
+const calEl = document.getElementById("calendar");
+const calDays = document.getElementById("calDays");
+const calTitle = document.getElementById("calTitle");
+const calPrev = document.getElementById("calPrev");
+const calNext = document.getElementById("calNext");
+const dateDisplay = document.getElementById("dateDisplay");
+const calYearToggle = document.getElementById("calYearToggle");
+const calYearList = document.getElementById("calYearList");
+const calYearDisplay = document.getElementById("calYearDisplay");
+let currentMonth = new Date();
+if (calYearList) calYearList.hidden = true;
+
+function resizeCanvas() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+  if (fireCanvas) {
+    fireCanvas.width = window.innerWidth;
+    fireCanvas.height = window.innerHeight;
+  }
+  if (wordCanvas) {
+    wordCanvas.width = window.innerWidth;
+    wordCanvas.height = window.innerHeight;
+  }
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+function showSection(id) {
+  sections.forEach((sec) => sec.classList.toggle("active", sec.id === id));
+  currentIndex = sections.findIndex((sec) => sec.id === id);
+  const isJourney = id === "congrats" || id === "candleSection";
+  if (!isJourney) {
+    journeyStarted = false;
+    journeyDelta = 0;
+    stopConfetti();
+    scrollArmed = false;
+    if (scrollHint) scrollHint.classList.remove("visible");
+    document.body.classList.remove("journey");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+  // поздравление показываем всегда, путь не стартует без явного скролла
+  if (id === "congrats") {
+    journeyStarted = false;
+    journeyDelta = 0;
+    pathProgress = 0;
+    document.body.classList.remove("journey");
+    if (scrollHint) scrollHint.classList.remove("visible");
+  }
+  if (id === "candleSection") {
+    journeyStarted = true;
+    pathProgress = 1;
+    document.body.classList.add("journey");
+    startCandleScene();
+  } else {
+    resetAgeRise();
+  }
+  applyPathProgress();
+  updatePathWords();
+  updateStatsVisibility();
+  syncJourneySections();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function advance() {
+  const next = sections[currentIndex + 1];
+  if (next) {
+    showSection(next.id);
+  }
+}
+
+function checkBirth() {
+  const inputIso = selectedDateIso || parseDisplayDate();
+  const ok = isTest || inputIso === birthIso;
+  if (ok) {
+    selectedDateIso = inputIso || birthIso;
+    feedback.textContent = "";
+    showSection("passport");
+    triggerConfetti();
+    wordFired = false;
+    startPassportPrank();
+  } else {
+    feedback.textContent = "ты даун?";
+  }
+}
+
+function blowOut() {
+  const flame = document.getElementById("flame");
+  const sound = document.getElementById("blowSound");
+  const now = Date.now();
+  if (now - candleReadyAt < 1500) {
+    showQuickWishWarn();
+    return;
+  }
+  if (flame) {
+    flame.classList.remove("lit");
+    flame.classList.add("out");
+  }
+  sound.currentTime = 0;
+  sound.play();
+  startFireworks();
+  setTimeout(() => {
+    if (flame) flame.style.opacity = "0";
+    advance();
+  }, 700);
+}
+
+function startPassportPrank() {
+  clearPassportTimers();
+  resetLoader();
+  if (passStatusEl) {
+    passStatusEl.classList.remove("fading");
+    passStatusEl.textContent = "Проверяю данные в интернете";
+  }
+  if (passportNextBtn) passportNextBtn.classList.remove("visible");
+  if (passNameEl) passNameEl.textContent = "";
+  if (passDateEl) passDateEl.textContent = "···";
+  if (passAgeEl) passAgeEl.textContent = "—";
+  runPassportSequence();
+}
+
+function clearPassportTimers() {
+  passportTimers.forEach((t) => {
+    clearTimeout(t);
+    clearInterval(t);
+  });
+  passportTimers = [];
+}
+
+function clearCandleTimeline() {
+  candleTimers.forEach((t) => clearTimeout(t));
+  candleTimers = [];
+  candleRevealTimer = null;
+}
+
+function resetLoader() {
+  if (loaderFrame) cancelAnimationFrame(loaderFrame);
+  loaderFrame = null;
+  loaderProgress = 0;
+  if (passLoaderFill) {
+    passLoaderFill.classList.remove("done");
+    passLoaderFill.style.width = "0%";
+  }
+  if (passLoader) passLoader.classList.remove("hidden");
+}
+
+function setLoaderProgress(target, done = false) {
+  if (!passLoaderFill) return;
+  const start = loaderProgress;
+  const end = Math.max(0, Math.min(100, target));
+  const startTime = performance.now();
+  const duration = Math.max(240, Math.abs(end - start) * 10);
+  if (loaderFrame) cancelAnimationFrame(loaderFrame);
+  passLoaderFill.classList.toggle("done", done && end === 100);
+  function step(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    const value = start + (end - start) * t;
+    loaderProgress = value;
+    passLoaderFill.style.width = `${value}%`;
+    if (t < 1) {
+      loaderFrame = requestAnimationFrame(step);
+    } else {
+      loaderProgress = end;
+      loaderFrame = null;
+      passLoaderFill.classList.toggle("done", done && end === 100);
+    }
+  }
+  loaderFrame = requestAnimationFrame(step);
+}
+
+async function runPassportSequence() {
+  setLoaderProgress(12);
+  await animateNameGlitch(passportDefaults.name);
+  setLoaderProgress(38);
+  await animateDateRoll();
+  setLoaderProgress(68);
+  await animateAgeShuffle();
+  setLoaderProgress(100, true);
+  fadeStatusTo("вроде верно");
+  if (passportNextBtn) passportNextBtn.classList.add("visible");
+}
+
+function animateNameGlitch(target) {
+  return new Promise((resolve) => {
+    if (!passNameEl || !target) {
+      resolve();
+      return;
+    }
+    let idx = 0;
+    let current = "";
+    const chars = target.split("");
+    const timer = setInterval(() => {
+      const hasQuestion = current.endsWith("?");
+      if (Math.random() < 0.25 && current.length) {
+        current = hasQuestion ? current.replace(/\?+$/, "") : current + "?";
+        passNameEl.textContent = current;
+        return;
+      }
+      if (idx < chars.length) {
+        current += chars[idx];
+        idx += 1;
+        const tail = Math.random() < 0.16 ? "?" : "";
+        passNameEl.textContent = current + tail;
+      } else {
+        passNameEl.textContent = target;
+        clearInterval(timer);
+        resolve();
+      }
+    }, 95);
+    passportTimers.push(timer);
+  });
+}
+
+function animateDateRoll() {
+  return new Promise((resolve) => {
+    if (!passDateEl) {
+      resolve();
+      return;
+    }
+    const targetIso = selectedDateIso || birthIso || todayIso;
+    const targetDate = new Date(`${targetIso}T00:00:00`);
+    if (Number.isNaN(targetDate.getTime())) {
+      passDateEl.textContent = passportDefaults.date;
+      resolve();
+      return;
+    }
+    let cursor = new Date();
+    const timer = setInterval(() => {
+      const diffDays = Math.floor((cursor - targetDate) / 86400000);
+      if (diffDays <= 0) {
+        passDateEl.textContent = formatDisplayDate(targetDate);
+        clearInterval(timer);
+        resolve();
+        return;
+      }
+      const step = Math.max(1, Math.ceil(diffDays / 14));
+      cursor.setDate(cursor.getDate() - step);
+      passDateEl.textContent = formatDisplayDate(cursor);
+    }, 60);
+    passportTimers.push(timer);
+  });
+}
+
+function animateAgeShuffle() {
+  return new Promise((resolve) => {
+    if (!passAgeEl) {
+      resolve();
+      return;
+    }
+    const flashes = ["99?", "32", "6", "67?", "15", "42?"];
+    let idx = 0;
+    const playNext = () => {
+      if (idx < flashes.length) {
+        passAgeEl.textContent = flashes[idx];
+        idx += 1;
+        const delay = 260 + Math.min(idx, 4) * 80 + Math.random() * 60; // слегка замедляемся, будто ищем
+        const t = setTimeout(playNext, delay);
+        passportTimers.push(t);
+        return;
+      }
+      const finalTimer = setTimeout(() => {
+        passAgeEl.textContent = `${ageYears || passportDefaults.age || 17}`;
+        resolve();
+      }, 420);
+      passportTimers.push(finalTimer);
+    };
+    playNext();
+  });
+}
+
+function fadeStatusTo(text) {
+  if (!passStatusEl) return;
+  passStatusEl.classList.add("fading");
+  const timer = setTimeout(() => {
+    passStatusEl.textContent = text;
+    passStatusEl.classList.remove("fading");
+  }, 320);
+  passportTimers.push(timer);
+}
+
+function formatDisplayDate(dateInput) {
+  const d = dateInput instanceof Date ? dateInput : new Date(`${dateInput}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return "";
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}.${mm}.${yyyy}`;
+}
+
+function handleScroll(event) {
+  return;
+}
+
+function handleTouchStart(event) {
+  touchStartY = event.touches[0].clientY;
+}
+
+function handleTouchMove(event) {
+  return;
+}
+
+function startConfetti(append = false) {
+  const newPieces = Array.from({ length: 140 }).map(() => ({
+    x: Math.random() * confettiCanvas.width,
+    y: Math.random() * -confettiCanvas.height * Math.random(),
+    size: 3 + Math.random() * 3,
+    vx: (Math.random() - 0.5) * (0.6 + Math.random() * 0.8),
+    vy: 0.4 + Math.random() * 1.2,
+    color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+    mode: "fall",
+    opacity: 0.65 + Math.random() * 0.3,
+  }));
+  confettiPieces = append && confettiPieces.length ? confettiPieces.concat(newPieces) : newPieces;
+  confettiCanvas.style.opacity = "1";
+  if (!confettiActive) {
+    confettiActive = true;
+    requestAnimationFrame(confettiLoop);
+  }
+}
+
+function startConfettiBurst() {
+  confettiActive = true;
+  confettiCanvas.style.opacity = "1";
+  const centerX = confettiCanvas.width / 2;
+  const centerY = confettiCanvas.height / 3;
+  confettiPieces = Array.from({ length: 220 }).map(() => {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2.5 + Math.random() * 4.2;
+    return {
+      x: centerX,
+      y: centerY,
+      size: 3 + Math.random() * 4,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+      mode: "burst",
+      opacity: 0.85,
+      life: 0,
+    };
+  });
+  if (confettiAudio) {
+    confettiAudio.currentTime = 0;
+    confettiAudio.play().catch(() => {});
+  }
+  requestAnimationFrame(confettiLoop);
+}
+
+function triggerConfetti() {
+  startConfettiBurst();
+}
+
+let fireParticles = [];
+let fireActive = false;
+let fireQueue = [];
+
+function startFireworks() {
+  if (!fireCanvas) return;
+  fireActive = true;
+  fireQueue = [
+    { x: fireCanvas.width * 0.22, y: fireCanvas.height * 0.4, color: confettiColors[0] },
+    { x: fireCanvas.width * 0.78, y: fireCanvas.height * 0.42, color: confettiColors[1] },
+    { x: fireCanvas.width * 0.5, y: fireCanvas.height * 0.28, color: confettiColors[2] },
+    { x: fireCanvas.width * 0.35, y: fireCanvas.height * 0.33, color: confettiColors[3] },
+  ];
+  fireParticles = [];
+  launchNextFirework();
+  requestAnimationFrame(fireLoop);
+}
+
+function launchNextFirework() {
+  if (!fireQueue.length) return;
+  const spot = fireQueue.shift();
+  const count = 70 + Math.floor(Math.random() * 30);
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2 + Math.random() * 3.8;
+    fireParticles.push({
+      x: spot.x,
+      y: spot.y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      size: 2 + Math.random() * 2,
+      color: spot.color || confettiColors[Math.floor(Math.random() * confettiColors.length)],
+      life: 0,
+      opacity: 1,
+    });
+  }
+  setTimeout(launchNextFirework, 450);
+}
+
+function fireLoop() {
+  fctx.clearRect(0, 0, fireCanvas.width, fireCanvas.height);
+  fireParticles.forEach((p) => {
+    fctx.fillStyle = p.color;
+    fctx.globalAlpha = Math.max(0, p.opacity);
+    fctx.fillRect(p.x, p.y, p.size, p.size);
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.02;
+    p.opacity -= 0.005;
+    p.life += 1;
+  });
+  fctx.globalAlpha = 1;
+  fireParticles = fireParticles.filter((p) => p.opacity > 0.05 && p.y < fireCanvas.height + 40);
+  if (fireParticles.length && fireActive) {
+    requestAnimationFrame(fireLoop);
+  } else {
+    fireActive = false;
+    fctx.clearRect(0, 0, fireCanvas.width, fireCanvas.height);
+  }
+}
+
+function confettiLoop() {
+  ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  confettiPieces.forEach((piece) => {
+    ctx.fillStyle = piece.color || "rgba(255,255,255," + piece.opacity + ")";
+    ctx.fillRect(piece.x, piece.y, piece.size, piece.size * 2.4);
+    piece.x += piece.vx;
+    piece.y += piece.vy;
+  });
+
+  const survivors = [];
+  confettiPieces.forEach((piece) => {
+    if (piece.mode === "burst") {
+      piece.vx *= 0.993;
+      piece.vy += 0.028; // легкая гравитация, чтобы летели дальше дугой
+      piece.opacity -= 0.0028;
+      piece.life = (piece.life || 0) + 1;
+      if (piece.life > 120 || piece.opacity < 0.35) {
+        piece.mode = "fall";
+        piece.vx *= 0.65;
+        piece.vy = Math.abs(piece.vy) * 0.4 + 0.4;
+        piece.opacity = Math.max(piece.opacity, 0.6);
+      }
+      survivors.push(piece);
+    } else {
+      piece.vx *= 0.992;
+      piece.vy = Math.min(piece.vy + 0.012, 2.6);
+      if (piece.y <= confettiCanvas.height + 30) {
+        survivors.push(piece);
+      }
+    }
+  });
+  confettiPieces = survivors;
+  if (confettiActive) {
+    if (confettiPieces.length) {
+      requestAnimationFrame(confettiLoop);
+    } else {
+      confettiActive = false;
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      confettiCanvas.style.opacity = "0";
+    }
+  } else {
+    setTimeout(() => {
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      confettiCanvas.style.opacity = "0";
+    }, 120);
+  }
+}
+
+function stopConfetti() {
+  confettiActive = false;
+}
+
+function triggerWordFirework() {
+  if (wordFired || !wordCanvas) return;
+  wordFired = true;
+  buildWordParticles("ПОЗДРАВЛЯЕМ");
+  wordLoop();
+}
+
+function buildWordParticles(text) {
+  const off = document.createElement("canvas");
+  off.width = 1100;
+  off.height = 280;
+  const offCtx = off.getContext("2d");
+  offCtx.fillStyle = "#fff";
+  offCtx.textAlign = "center";
+  offCtx.textBaseline = "middle";
+  const fontSize = Math.min(140, wordCanvas.width * 0.08, wordCanvas.height * 0.2);
+  offCtx.font = `bold ${fontSize}px 'SF Pro Display', -apple-system, sans-serif`;
+  offCtx.fillText(text, off.width / 2, off.height / 2);
+  const data = offCtx.getImageData(0, 0, off.width, off.height).data;
+  const scale = Math.min(wordCanvas.width * 0.6 / off.width, wordCanvas.height * 0.28 / off.height);
+  const offsetX = wordCanvas.width / 2;
+  const offsetY = wordCanvas.height * 0.32;
+  wordParticles = [];
+  for (let y = 0; y < off.height; y += 6) {
+    for (let x = 0; x < off.width; x += 6) {
+      const idx = (y * off.width + x) * 4;
+      if (data[idx + 3] > 100) {
+        const tx = offsetX + (x - off.width / 2) * scale;
+        const ty = offsetY + (y - off.height / 2) * scale;
+        wordParticles.push({
+          x: wordCanvas.width / 2 + (Math.random() - 0.5) * 30,
+          y: wordCanvas.height + Math.random() * 40,
+          tx,
+          ty,
+          color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+          life: 0,
+          alpha: 1,
+        });
+      }
+    }
+  }
+}
+
+function wordLoop() {
+  if (!wordParticles.length) return;
+  wctx.clearRect(0, 0, wordCanvas.width, wordCanvas.height);
+  wordParticles.forEach((p) => {
+    p.x += (p.tx - p.x) * 0.08;
+    p.y += (p.ty - p.y) * 0.08;
+    p.life += 1;
+    if (p.life > 180) {
+      p.alpha -= 0.01;
+    }
+    wctx.fillStyle = p.color;
+    wctx.globalAlpha = Math.max(0, p.alpha);
+    wctx.fillRect(p.x, p.y, 3.5, 3.5);
+  });
+  wctx.globalAlpha = 1;
+  wordParticles = wordParticles.filter((p) => p.alpha > 0.02);
+  if (wordParticles.length) {
+    requestAnimationFrame(wordLoop);
+  } else {
+    wctx.clearRect(0, 0, wordCanvas.width, wordCanvas.height);
+  }
+}
+
+function resetFlow() {
+  const flame = document.getElementById("flame");
+  if (flame) {
+    flame.style.opacity = "0";
+    flame.classList.remove("out", "lit");
+  }
+  feedback.textContent = "";
+  wordFired = false;
+  fireActive = false;
+  fireParticles = [];
+  fireQueue = [];
+  if (fireCanvas) fctx.clearRect(0, 0, fireCanvas.width, fireCanvas.height);
+  clearCandleTimeline();
+  if (ageRiseDelayTimer) clearTimeout(ageRiseDelayTimer);
+  if (candleWrap) candleWrap.classList.remove("pop-in", "slide-in");
+  if (candleHand) candleHand.classList.remove("move-in", "move-out");
+  if (lighterFlame) lighterFlame.classList.remove("ignite");
+  if (cake) cake.classList.remove("building");
+  candleReadyAt = 0;
+  if (speedWarn) {
+    speedWarn.classList.remove("visible");
+    speedWarn.textContent = defaultSpeedWarnText;
+  }
+  clearPassportTimers();
+  resetLoader();
+  if (passStatusEl) {
+    passStatusEl.classList.remove("fading");
+    passStatusEl.textContent = "Проверяю данные в интернете";
+  }
+  if (passNameEl) passNameEl.textContent = passportDefaults.name;
+  if (passDateEl) passDateEl.textContent = passportDefaults.date;
+  if (passAgeEl) passAgeEl.textContent = passportDefaults.age;
+  if (ageCircle) {
+    ageCircle.classList.remove("raise");
+    ageCircle.style.transform = "translateY(0px)";
+  }
+  if (passportNextBtn) passportNextBtn.classList.remove("visible");
+  selectedDateIso = "";
+  currentMonth = new Date();
+  if (dateDisplay) {
+    dateDisplay.value = "";
+    dateDisplay.placeholder = "дд.мм.гггг";
+  }
+  renderCalendar();
+  const target = isTest ? "congrats" : "check";
+  showSection(target);
+  if (isTest) triggerConfetti();
+}
+
+document.getElementById("confirmBtn").addEventListener("click", checkBirth);
+document.getElementById("blowButton").addEventListener("click", blowOut);
+document.getElementById("nextCongrats").addEventListener("click", () => showSection("candleSection"));
+passportNextBtn?.addEventListener("click", () => showSection("congrats"));
+document.addEventListener("wheel", handleScroll, { passive: true });
+document.addEventListener("touchstart", handleTouchStart, { passive: true });
+document.addEventListener("touchmove", handleTouchMove, { passive: true });
+window.addEventListener("scroll", handleJourneyScroll, { passive: true });
+const openCalendarIfClosed = () => {
+  if (!calendarOpen) openCalendar();
+};
+dateDisplay?.addEventListener("click", openCalendarIfClosed);
+dateDisplay?.addEventListener("focus", openCalendarIfClosed);
+calPrev?.addEventListener("click", () => changeMonth(-1));
+calNext?.addEventListener("click", () => changeMonth(1));
+calYearToggle?.addEventListener("click", toggleYearList);
+document.addEventListener("click", (e) => {
+  if (!calendarOpen) return;
+  if (!calEl.contains(e.target) && !dateDisplay.contains(e.target)) {
+    closeCalendar();
+  }
+});
+if (isTest) {
+  showSection("congrats");
+  triggerConfetti();
+}
+
+const resetButton = document.getElementById("resetButton");
+if (resetButton) {
+  resetButton.addEventListener("click", resetFlow);
+}
+
+function buildPathWords() {
+  return;
+}
+
+function updatePathWords() {
+  if (!pathLayer) return;
+  const idx = Math.max(0, Math.min(floatingWords.length - 1, Math.floor(pathProgress * floatingWords.length)));
+  floatingWords.forEach((word, i) => {
+    if (word.el) {
+      const visible = i === idx;
+      word.el.classList.toggle("visible", visible);
+      word.el.style.left = word.x + "vw";
+      word.el.style.top = word.y + "vh";
+      word.el.style.transitionDelay = visible ? "80ms" : "0ms";
+    }
+  });
+}
+
+function computeLifeStats() {
+  const birth = new Date(birthIso + "T00:00:00");
+  const now = new Date();
+  const diffMs = Math.max(0, now - birth);
+  const days = Math.floor(diffMs / 86400000);
+  const hours = Math.floor(diffMs / 3600000);
+  const nights = days;
+  const years = diffMs / (365.25 * 24 * 3600000);
+  const hearts = Math.max(1, Math.round(years * 1.25 + (days % 5)));
+  return { hours, days, nights, hearts };
+}
+
+function formatNum(value) {
+  return value.toLocaleString("ru-RU");
+}
+
+function buildStats() {
+  return;
+}
+
+function animateStat(card) {
+  const valueEl = card.querySelector(".stat-value");
+  if (!valueEl) return;
+  const key = card.querySelector(".stat-value").id.replace("stat-", "");
+  if (statAnimated[key]) return;
+  statAnimated[key] = true;
+  const target = statsData[key] || 0;
+  const duration = 900;
+  const startTime = performance.now();
+  function tick(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const current = Math.floor(target * eased);
+    valueEl.textContent = current.toLocaleString("ru-RU");
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function startCandleScene() {
+  if (!candleWrap) return;
+  clearCandleTimeline();
+  if (ageRiseDelayTimer) clearTimeout(ageRiseDelayTimer);
+  candleReadyAt = Date.now();
+  candleWrap.classList.remove("pop-in", "slide-in");
+  if (flameEl) {
+    flameEl.classList.remove("out", "lit");
+    flameEl.style.opacity = "0";
+  }
+  if (ageCircle) {
+    ageCircle.classList.remove("raise");
+    ageCircle.textContent = "0";
+    ageCircle.style.setProperty("--age-rise", `-${Math.min(50, ageYears * 3)}px`);
+    ageCircle.style.transform = "translateY(0px)";
+  }
+  if (lighterFlame) lighterFlame.classList.remove("ignite");
+  if (candleHand) {
+    candleHand.classList.remove("move-in", "move-out");
+    void candleHand.offsetWidth;
+  }
+  if (cake) {
+    cake.classList.remove("building");
+    void cake.offsetWidth;
+    cake.classList.add("building");
+  }
+  // step 1: bring hand + candle after cake assembles (свеча ещё не горит)
+  candleTimers.push(setTimeout(() => {
+    candleWrap.classList.add("slide-in", "pop-in");
+    if (candleHand) candleHand.classList.add("move-in");
+  }, 850));
+  // step 2: зажечь спичку
+  candleTimers.push(setTimeout(() => {
+    if (lighterFlame) lighterFlame.classList.add("ignite");
+  }, 1150));
+  // step 3: поджечь свечу после спички
+  candleTimers.push(setTimeout(() => {
+    if (flameEl) {
+      flameEl.classList.remove("out");
+      flameEl.classList.add("lit");
+    }
+  }, 1400));
+  // step 4: убрать руку после поджига
+  candleTimers.push(setTimeout(() => {
+    if (lighterFlame) lighterFlame.classList.remove("ignite");
+    if (candleHand) candleHand.classList.add("move-out");
+  }, 1650));
+  // step 5: старт счёта возраста после поджига
+  candleTimers.push(setTimeout(() => {
+    animateAgeRise(0, true);
+  }, 1850));
+}
+
+function animateAgeRise(startDelay = 0, fromCandle = false) {
+  if (!ageCircle) return;
+  if (ageAnimationFrame) cancelAnimationFrame(ageAnimationFrame);
+  if (ageRiseDelayTimer) clearTimeout(ageRiseDelayTimer);
+  ageAnimationFrame = null;
+  ageCircle.classList.remove("raise");
+  ageCircle.textContent = "0";
+  const maxRise = 50;
+  const rise = Math.min(maxRise, ageYears * 3);
+  ageCircle.style.setProperty("--age-rise", `-${rise}px`);
+  ageCircle.style.transform = "translateY(0px)";
+  const previousTransition = ageCircle.style.transition;
+  ageCircle.style.transition = "none";
+  const run = () => {
+    const duration = 4000;
+    const start = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = t < 0.5
+        ? 4 * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 3) / 2; // плавный старт/финиш без резкого рывка
+      const current = Math.max(0, Math.round((ageYears || 0) * eased));
+      const progress = ageYears ? current / ageYears : 1;
+      const y = -rise * progress;
+      ageCircle.style.transform = `translateY(${y}px)`;
+      ageCircle.textContent = current.toString();
+      if (t < 1) {
+        ageAnimationFrame = requestAnimationFrame(step);
+      } else {
+        ageCircle.textContent = ageYears.toString();
+        ageCircle.style.transform = `translateY(${-rise}px)`;
+        ageAnimationFrame = null;
+        ageCircle.style.transition = previousTransition;
+      }
+    };
+    ageAnimationFrame = requestAnimationFrame(step);
+  };
+  if (startDelay > 0) {
+    ageRiseDelayTimer = setTimeout(run, startDelay);
+  } else {
+    run();
+  }
+}
+
+function resetAgeRise() {
+  if (!ageCircle) return;
+  if (ageAnimationFrame) cancelAnimationFrame(ageAnimationFrame);
+  if (ageRiseDelayTimer) clearTimeout(ageRiseDelayTimer);
+  ageAnimationFrame = null;
+  ageCircle.classList.remove("raise");
+  ageCircle.style.setProperty("--age-rise", `0px`);
+  ageCircle.textContent = ageYears.toString();
+  ageCircle.style.transform = "translateY(0px)";
+}
+
+function updateStatsVisibility() {
+  return;
+}
+
+function addOrbs() {
+  if (!pathLayer) return;
+  for (let i = 0; i < 6; i++) {
+    const orb = document.createElement("div");
+    orb.className = "orb";
+    orb.style.left = `${Math.random() * 100}vw`;
+    orb.style.top = `${Math.random() * 100}vh`;
+    orb.style.animationDelay = `${Math.random() * 4}s`;
+    pathLayer.appendChild(orb);
+  }
+}
+
+function syncJourneySections() {
+  return;
+}
+
+function handleJourneyScroll() {
+  return;
+  const total = (journeyScroll?.offsetHeight || 0) - window.innerHeight;
+  if (total <= 0) return;
+  const progressRaw = Math.max(0, Math.min(1, window.scrollY / total));
+  pathProgress = Math.pow(progressRaw, slowExponent);
+  updatePathWords();
+  updateStatsVisibility();
+  applyPathProgress();
+  syncJourneySections();
+  if (!wordFired && pathProgress > 0.42) {
+    triggerWordFirework();
+  }
+}
+
+function isJourneyActive() {
+  const id = sections[currentIndex]?.id;
+  return id === "congrats" || id === "candleSection";
+}
+
+function startJourney() {
+  if (journeyStarted) return;
+  journeyStarted = true;
+  journeyDelta = 0;
+  pathProgress = 0;
+  document.body.classList.add("journey");
+  if (scrollHint) scrollHint.classList.remove("visible");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  syncJourneySections();
+}
+
+function applyPathProgress() {
+  if (!congratsSection) return;
+  congratsSection.style.setProperty("--path-progress", pathProgress.toFixed(3));
+}
+
+function incrementPath(delta) {
+  const step = Math.max(-0.22, Math.min(0.22, delta / 900));
+  pathProgress = Math.min(1, Math.max(0, pathProgress + step));
+  updatePathWords();
+}
+
+function showSpeedWarn() {
+  if (!speedWarn) return;
+  speedWarn.classList.add("visible");
+  clearTimeout(showSpeedWarn.hideTimer);
+  showSpeedWarn.hideTimer = setTimeout(() => speedWarn.classList.remove("visible"), 900);
+}
+
+function showQuickWishWarn() {
+  if (!speedWarn) return;
+  speedWarn.textContent = "Так быстро загадал желание?";
+  speedWarn.classList.add("visible");
+  clearTimeout(showQuickWishWarn.hideTimer);
+  showQuickWishWarn.hideTimer = setTimeout(() => {
+    speedWarn.classList.remove("visible");
+    speedWarn.textContent = defaultSpeedWarnText;
+  }, 1400);
+}
+
+function openCalendar() {
+  if (!calEl) return;
+  if (calendarOpen) return;
+  calendarOpen = true;
+  calEl.hidden = false;
+  if (calYearList) calYearList.hidden = true;
+  renderCalendar();
+}
+
+function closeCalendar() {
+  calendarOpen = false;
+  if (calEl) calEl.hidden = true;
+  if (calYearList) calYearList.hidden = true;
+}
+
+function changeMonth(delta) {
+  currentMonth.setMonth(currentMonth.getMonth() + delta);
+  renderCalendar();
+}
+
+function toggleYearList() {
+  if (!calYearList || !calYearDisplay) return;
+  const shouldOpen = calYearList.hidden;
+  if (shouldOpen) {
+    renderYearList();
+    calYearList.hidden = false;
+  } else {
+    calYearList.hidden = true;
+  }
+}
+
+function renderCalendar() {
+  if (!calEl || !calDays || !calTitle) return;
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth();
+  const start = new Date(year, month, 1);
+  const startIndex = (start.getDay() + 6) % 7; // monday first
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysPrev = new Date(year, month, 0).getDate();
+  const fragment = document.createDocumentFragment();
+  const localeMonth = start.toLocaleString("ru-RU", { month: "long" });
+  const monthEl = document.getElementById("calMonth");
+  if (monthEl) monthEl.textContent = localeMonth;
+  if (calYearDisplay) calYearDisplay.textContent = year;
+  calDays.innerHTML = "";
+  for (let i = 0; i < startIndex; i++) {
+    const d = document.createElement("div");
+    d.className = "cal-day muted";
+    d.textContent = daysPrev - startIndex + i + 1;
+    fragment.appendChild(d);
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    const d = document.createElement("div");
+    d.className = "cal-day";
+    const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    d.dataset.iso = iso;
+    d.textContent = day;
+    if (iso === selectedDateIso) d.classList.add("selected");
+    d.addEventListener("click", () => selectDate(iso));
+    fragment.appendChild(d);
+  }
+  while (fragment.childNodes.length < 42) {
+    const d = document.createElement("div");
+    d.className = "cal-day muted";
+    d.textContent = fragment.childNodes.length - (startIndex + daysInMonth) + 1;
+    fragment.appendChild(d);
+  }
+  calDays.appendChild(fragment);
+
+  renderYearList();
+}
+
+function selectDate(iso) {
+  selectedDateIso = iso;
+  const [y, m, d] = iso.split("-");
+  if (dateDisplay) dateDisplay.value = `${d}.${m}.${y}`;
+  closeCalendar();
+}
+
+function renderYearList() {
+  if (!calYearList) return;
+  calYearList.innerHTML = "";
+  const currentViewYear = currentMonth.getFullYear();
+  const todayYear = new Date().getFullYear();
+  const parsedBirthYear = birthIso ? parseInt(birthIso.slice(0, 4), 10) : NaN;
+  const selectedYear = selectedDateIso ? parseInt(selectedDateIso.slice(0, 4), 10) : NaN;
+  const baseMin = todayYear - 80;
+  const baseMax = todayYear + 2;
+  const minYear = Math.min(
+    baseMin,
+    Number.isNaN(parsedBirthYear) ? baseMin : parsedBirthYear - 5,
+    Number.isNaN(selectedYear) ? baseMin : selectedYear - 2
+  );
+  const maxYear = Math.max(
+    baseMax,
+    Number.isNaN(parsedBirthYear) ? baseMax : parsedBirthYear + 2,
+    Number.isNaN(selectedYear) ? baseMax : selectedYear + 2
+  );
+  const activeYear = Number.isNaN(selectedYear) ? currentViewYear : selectedYear;
+  const fragment = document.createDocumentFragment();
+  for (let y = maxYear; y >= minYear; y--) {
+    const item = document.createElement("div");
+    item.className = "cal-year-item";
+    item.textContent = y;
+    if (y === activeYear) item.classList.add("active");
+    item.addEventListener("click", (evt) => {
+      evt.stopPropagation(); // keep calendar open
+      currentMonth.setFullYear(y);
+      renderCalendar();
+      calYearList.hidden = true;
+      if (calEl) {
+        calendarOpen = true;
+        calEl.hidden = false;
+      }
+    });
+    fragment.appendChild(item);
+  }
+  calYearList.appendChild(fragment);
+  const activeEl = calYearList.querySelector(".active");
+  if (activeEl) activeEl.scrollIntoView({ block: "center" });
+}
+
+function parseDisplayDate() {
+  if (!dateDisplay || !dateDisplay.value) return "";
+  const parts = dateDisplay.value.trim().split(".");
+  if (parts.length !== 3) return "";
+  const [dd, mm, yyyy] = parts;
+  if (dd.length !== 2 || mm.length !== 2 || yyyy.length !== 4) return "";
+  const iso = `${yyyy}-${mm}-${dd}`;
+  const d = new Date(iso + "T00:00:00");
+  if (Number.isNaN(d.getTime())) return "";
+  return iso;
+}
+
+renderCalendar();
+buildStats();
+</script>
+</body>
+</html>

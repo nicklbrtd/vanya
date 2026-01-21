@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>С ДР ЧУВААК</title>
+<title>Ване от Никиты</title>
 <style>
 :root {
   --bg: #000;
@@ -421,8 +421,8 @@ button:active { transform: translateY(0); }
 
 .candle-wrap {
   position: relative;
-  width: 120px;
-  height: 220px;
+  width: 96px;
+  height: 200px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -515,8 +515,8 @@ button:active { transform: translateY(0); }
 .cake {
   position: absolute;
   bottom: 0;
-  width: 210px;
-  height: 120px;
+  width: 180px;
+  height: 108px;
   filter: drop-shadow(0 10px 26px rgba(0,0,0,0.5));
   z-index: 1;
 }
@@ -524,10 +524,10 @@ button:active { transform: translateY(0); }
 .candle-spot {
   position: absolute;
   left: 50%;
-  bottom: 96px;
+  bottom: 84px;
   transform: translateX(-50%);
-  width: 160px;
-  height: 240px;
+  width: 140px;
+  height: 220px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -566,15 +566,15 @@ button:active { transform: translateY(0); }
 
 .cake-layer.layer-base {
   bottom: 0;
-  width: 210px;
-  height: 70px;
+  width: 180px;
+  height: 62px;
   background: linear-gradient(180deg, #f0d2a8 0%, #d9a35f 100%);
 }
 
 .cake-layer.layer-cream {
-  bottom: 46px;
-  width: 190px;
-  height: 56px;
+  bottom: 40px;
+  width: 168px;
+  height: 50px;
   background: linear-gradient(180deg, #ffeef6 0%, #ffb7d5 100%);
   box-shadow: 0 10px 22px rgba(255,183,213,0.25);
 }
@@ -1068,12 +1068,11 @@ body.journey .journey-scroll {
   <section id="passport">
     <p class="eyebrow">Паспарт</p>
     <h2>Сегодня точно твой день рождения?</h2>
-    <p class="muted">Проверяю данные в интернете...</p>
     <div class="passport-card" id="passportCard">
       <div class="passport-row"><span class="passport-label">ФИО</span><span class="passport-value" id="passName">Виликсар Иван Степанович</span></div>
       <div class="passport-row"><span class="passport-label">Дата рождения</span><span class="passport-value" id="passDate">27.01.2009</span></div>
       <div class="passport-row"><span class="passport-label">Лет исполнилось</span><span class="passport-value" id="passAge">17</span></div>
-      <div class="passport-row"><span class="passport-label">Статус проверки</span><span class="passport-value status-line" id="passStatus">Проверяю данные в интернете</span></div>
+      <div class="passport-row"><span class="passport-label">Статус проверки</span><span class="passport-value status-line" id="passStatus">проверяю...</span></div>
       <div class="pass-loader" id="passLoader"><div class="pass-loader-fill" id="passLoaderFill"></div></div>
     </div>
     <button class="glow-btn passport-next" id="passportNext">Ахуена чуваааак</button>
@@ -1111,7 +1110,11 @@ body.journey .journey-scroll {
     </div>
     </div>
     <button id="blowButton">Задуть свечу</button>
-    <audio id="blowSound" src="/static/blow.mp3" preload="auto"></audio>
+    <audio id="popSound" src="/static/pop.mp3" preload="auto"></audio>
+    <audio data-firework-sound id="fw1" src="/static/firework1.mp3" preload="auto"></audio>
+    <audio data-firework-sound id="fw2" src="/static/firework2.mp3" preload="auto"></audio>
+    <audio data-firework-sound id="fw3" src="/static/firework3.mp3" preload="auto"></audio>
+    <audio data-firework-sound id="fw4" src="/static/firework4.mp3" preload="auto"></audio>
   </section>
 
   <section id="wish">
@@ -1184,6 +1187,8 @@ let loaderFrame = null;
 const ageCircle = document.getElementById("ageCircle");
 const candleWrap = document.querySelector(".candle-wrap");
 const flameEl = document.getElementById("flame");
+const popSound = document.getElementById("popSound");
+const fireworkSounds = Array.from(document.querySelectorAll("[data-firework-sound]"));
 let ageAnimationFrame = null;
 let ageRiseDelayTimer = null;
 let candleRevealTimer = null;
@@ -1295,7 +1300,6 @@ function checkBirth() {
 
 function blowOut() {
   const flame = document.getElementById("flame");
-  const sound = document.getElementById("blowSound");
   const now = Date.now();
   if (now - candleReadyAt < 1500) {
     showQuickWishWarn();
@@ -1305,8 +1309,6 @@ function blowOut() {
     flame.classList.remove("lit");
     flame.classList.add("out");
   }
-  sound.currentTime = 0;
-  sound.play();
   startFireworks();
   setTimeout(() => {
     if (flame) flame.style.opacity = "0";
@@ -1319,7 +1321,7 @@ function startPassportPrank() {
   resetLoader();
   if (passStatusEl) {
     passStatusEl.classList.remove("fading");
-    passStatusEl.textContent = "Проверяю данные в интернете";
+    passStatusEl.textContent = "проверяю...";
   }
   if (passportNextBtn) passportNextBtn.classList.remove("visible");
   if (passNameEl) passNameEl.textContent = "";
@@ -1358,7 +1360,7 @@ function setLoaderProgress(target, done = false) {
   const start = loaderProgress;
   const end = Math.max(0, Math.min(100, target));
   const startTime = performance.now();
-  const duration = Math.max(240, Math.abs(end - start) * 10);
+  const duration = Math.max(160, Math.abs(end - start) * 8);
   if (loaderFrame) cancelAnimationFrame(loaderFrame);
   passLoaderFill.classList.toggle("done", done && end === 100);
   function step(now) {
@@ -1415,7 +1417,7 @@ function animateNameGlitch(target) {
         clearInterval(timer);
         resolve();
       }
-    }, 95);
+    }, 70);
     passportTimers.push(timer);
   });
 }
@@ -1442,10 +1444,10 @@ function animateDateRoll() {
         resolve();
         return;
       }
-      const step = Math.max(1, Math.ceil(diffDays / 14));
+      const step = Math.max(1, Math.ceil(diffDays / 18));
       cursor.setDate(cursor.getDate() - step);
       passDateEl.textContent = formatDisplayDate(cursor);
-    }, 60);
+    }, 45);
     passportTimers.push(timer);
   });
 }
@@ -1462,7 +1464,7 @@ function animateAgeShuffle() {
       if (idx < flashes.length) {
         passAgeEl.textContent = flashes[idx];
         idx += 1;
-        const delay = 260 + Math.min(idx, 4) * 80 + Math.random() * 60; // слегка замедляемся, будто ищем
+        const delay = 190 + Math.min(idx, 4) * 60 + Math.random() * 40; // чуть быстрее, но всё ещё с поиском
         const t = setTimeout(playNext, delay);
         passportTimers.push(t);
         return;
@@ -1470,7 +1472,7 @@ function animateAgeShuffle() {
       const finalTimer = setTimeout(() => {
         passAgeEl.textContent = `${ageYears || passportDefaults.age || 17}`;
         resolve();
-      }, 420);
+      }, 300);
       passportTimers.push(finalTimer);
     };
     playNext();
@@ -1547,9 +1549,10 @@ function startConfettiBurst() {
       life: 0,
     };
   });
-  if (confettiAudio) {
-    confettiAudio.currentTime = 0;
-    confettiAudio.play().catch(() => {});
+  const soundSrc = popSound || confettiAudio;
+  if (soundSrc) {
+    soundSrc.currentTime = 0;
+    soundSrc.play().catch(() => {});
   }
   requestAnimationFrame(confettiLoop);
 }
@@ -1561,10 +1564,12 @@ function triggerConfetti() {
 let fireParticles = [];
 let fireActive = false;
 let fireQueue = [];
+let fireSoundIdx = 0;
 
 function startFireworks() {
   if (!fireCanvas) return;
   fireActive = true;
+  playFireworkSounds();
   fireQueue = [
     { x: fireCanvas.width * 0.22, y: fireCanvas.height * 0.4, color: confettiColors[0] },
     { x: fireCanvas.width * 0.78, y: fireCanvas.height * 0.42, color: confettiColors[1] },
@@ -1595,6 +1600,40 @@ function launchNextFirework() {
     });
   }
   setTimeout(launchNextFirework, 450);
+}
+
+function playFireworkSounds() {
+  if (!fireworkSounds.length) return;
+  const audio = fireworkSounds[fireSoundIdx % fireworkSounds.length];
+  fireSoundIdx += 1;
+  try {
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  } catch (e) {}
+  setTimeout(() => {
+    const next = fireworkSounds[fireSoundIdx % fireworkSounds.length];
+    fireSoundIdx += 1;
+    try {
+      next.currentTime = 0;
+      next.play().catch(() => {});
+    } catch (e) {}
+  }, 320);
+  setTimeout(() => {
+    const next = fireworkSounds[fireSoundIdx % fireworkSounds.length];
+    fireSoundIdx += 1;
+    try {
+      next.currentTime = 0;
+      next.play().catch(() => {});
+    } catch (e) {}
+  }, 620);
+  setTimeout(() => {
+    const next = fireworkSounds[fireSoundIdx % fireworkSounds.length];
+    fireSoundIdx += 1;
+    try {
+      next.currentTime = 0;
+      next.play().catch(() => {});
+    } catch (e) {}
+  }, 900);
 }
 
 function fireLoop() {
@@ -1764,7 +1803,7 @@ function resetFlow() {
   resetLoader();
   if (passStatusEl) {
     passStatusEl.classList.remove("fading");
-    passStatusEl.textContent = "Проверяю данные в интернете";
+    passStatusEl.textContent = "проверяю...";
   }
   if (passNameEl) passNameEl.textContent = passportDefaults.name;
   if (passDateEl) passDateEl.textContent = passportDefaults.date;

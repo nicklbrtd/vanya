@@ -552,7 +552,9 @@ button:active { transform: translateY(0); }
 #wish {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 140px;
+  padding: 48px 22px 140px;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .cake-layer {
@@ -1554,6 +1556,7 @@ function startConfettiBurst() {
     soundSrc.currentTime = 0;
     soundSrc.play().catch(() => {});
   }
+  triggerHaptics([20, 40, 20]);
   requestAnimationFrame(confettiLoop);
 }
 
@@ -1570,6 +1573,7 @@ function startFireworks() {
   if (!fireCanvas) return;
   fireActive = true;
   playFireworkSounds();
+  triggerHaptics([40, 70, 40, 70, 50]);
   fireQueue = [
     { x: fireCanvas.width * 0.22, y: fireCanvas.height * 0.4, color: confettiColors[0] },
     { x: fireCanvas.width * 0.78, y: fireCanvas.height * 0.42, color: confettiColors[1] },
@@ -2100,6 +2104,14 @@ function showQuickWishWarn() {
     speedWarn.classList.remove("visible");
     speedWarn.textContent = defaultSpeedWarnText;
   }, 1400);
+}
+
+function triggerHaptics(pattern = 35) {
+  try {
+    if (navigator?.vibrate) {
+      navigator.vibrate(pattern);
+    }
+  } catch (e) {}
 }
 
 function openCalendar() {

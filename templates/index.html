@@ -1163,6 +1163,7 @@ const speedWarn = document.getElementById("speedWarn");
 const defaultSpeedWarnText = speedWarn?.textContent || "";
 const wishSection = document.getElementById("wish");
 const slowExponent = 2.4;
+const savedBirthIso = localStorage.getItem("savedBirthIso") || "";
 const confettiAudio = document.getElementById("confettiSound");
 const wordCanvas = document.getElementById("wordCanvas");
 const wctx = wordCanvas.getContext("2d");
@@ -1222,6 +1223,14 @@ const calYearList = document.getElementById("calYearList");
 const calYearDisplay = document.getElementById("calYearDisplay");
 let currentMonth = new Date();
 if (calYearList) calYearList.hidden = true;
+if (savedBirthIso) {
+  selectedDateIso = savedBirthIso;
+  const [y, m, d] = savedBirthIso.split("-");
+  if (dateDisplay && y && m && d) {
+    dateDisplay.value = `${d}.${m}.${y}`;
+    currentMonth = new Date(`${savedBirthIso}T00:00:00`);
+  }
+}
 
 function resizeCanvas() {
   confettiCanvas.width = window.innerWidth;
@@ -1243,6 +1252,10 @@ function showSection(id) {
   currentIndex = sections.findIndex((sec) => sec.id === id);
   if (id === "wish" && wishSection) {
     wishSection.scrollTop = 0;
+  }
+  if (id === "check" && dateDisplay && selectedDateIso) {
+    dateDisplay.focus();
+    dateDisplay.blur();
   }
   const isJourney = id === "congrats" || id === "candleSection";
   if (!isJourney) {
@@ -1290,6 +1303,7 @@ function checkBirth() {
   const ok = isTest || inputIso === birthIso;
   if (ok) {
     selectedDateIso = inputIso || birthIso;
+    if (selectedDateIso) localStorage.setItem("savedBirthIso", selectedDateIso);
     feedback.textContent = "";
     showSection("passport");
     triggerConfetti();
@@ -1556,7 +1570,6 @@ function startConfettiBurst() {
     soundSrc.currentTime = 0;
     soundSrc.play().catch(() => {});
   }
-  triggerHaptics([20, 40, 20]);
   requestAnimationFrame(confettiLoop);
 }
 
@@ -1573,7 +1586,6 @@ function startFireworks() {
   if (!fireCanvas) return;
   fireActive = true;
   playFireworkSounds();
-  triggerHaptics([40, 70, 40, 70, 50]);
   fireQueue = [
     { x: fireCanvas.width * 0.22, y: fireCanvas.height * 0.4, color: confettiColors[0] },
     { x: fireCanvas.width * 0.78, y: fireCanvas.height * 0.42, color: confettiColors[1] },
@@ -2106,14 +2118,6 @@ function showQuickWishWarn() {
   }, 1400);
 }
 
-function triggerHaptics(pattern = 35) {
-  try {
-    if (navigator?.vibrate) {
-      navigator.vibrate(pattern);
-    }
-  } catch (e) {}
-}
-
 function openCalendar() {
   if (!calEl) return;
   if (calendarOpen) return;
@@ -2190,6 +2194,7 @@ function selectDate(iso) {
   selectedDateIso = iso;
   const [y, m, d] = iso.split("-");
   if (dateDisplay) dateDisplay.value = `${d}.${m}.${y}`;
+  localStorage.setItem("savedBirthIso", iso);
   closeCalendar();
 }
 

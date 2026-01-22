@@ -473,7 +473,7 @@ button:active { transform: translateY(0); }
   border-radius: 24px 26px 18px 18px;
   background: linear-gradient(125deg, rgba(255,255,255,0.85), var(--body));
   left: 52%;
-  transform: translateX(140%);
+  transform: translateX(-160%);
   z-index: 2;
 }
 
@@ -509,7 +509,7 @@ button:active { transform: translateY(0); }
   background: linear-gradient(120deg, var(--fur1), var(--fur2));
   border-radius: 30px 40px 28px 28px;
   left: -12%;
-  transform: translateX(-140%);
+  transform: translateX(-230%);
   z-index: 1;
 }
 
@@ -572,16 +572,16 @@ button:active { transform: translateY(0); }
 }
 
 @keyframes mouse-run {
-  0% { transform: translateX(140%) translateY(0); }
-  32% { transform: translateX(60%) translateY(-10px); }
-  68% { transform: translateX(-40%) translateY(-6px); }
-  100% { transform: translateX(-150%) translateY(0); }
+  0% { transform: translateX(-160%) translateY(0); }
+  32% { transform: translateX(-40%) translateY(-10px); }
+  68% { transform: translateX(70%) translateY(-6px); }
+  100% { transform: translateX(180%) translateY(0); }
 }
 
 @keyframes cat-run {
-  0% { transform: translateX(-140%) translateY(0); }
-  30% { transform: translateX(-10%) translateY(-8px); }
-  70% { transform: translateX(70%) translateY(-4px); }
+  0% { transform: translateX(-230%) translateY(0); }
+  30% { transform: translateX(-90%) translateY(-8px); }
+  70% { transform: translateX(35%) translateY(-4px); }
   100% { transform: translateX(140%) translateY(0); }
 }
 @keyframes pulse {
@@ -1427,8 +1427,8 @@ function startChase() {
   if (chaseTimer) clearTimeout(chaseTimer);
   chaseStage.classList.remove("run");
   if (giftFlash) giftFlash.classList.remove("flash");
-  if (mouseEl) mouseEl.style.transform = "translateX(140%)";
-  if (catEl) catEl.style.transform = "translateX(-140%)";
+  if (mouseEl) mouseEl.style.transform = "translateX(-160%)";
+  if (catEl) catEl.style.transform = "translateX(-230%)";
   void chaseStage.offsetWidth; // сбрасываем анимацию
   const delay = 420 + Math.random() * 900;
   chaseTimer = setTimeout(() => {

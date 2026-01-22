@@ -413,6 +413,177 @@ button:active { transform: translateY(0); }
   transform: translateY(0);
 }
 
+.chase-stage {
+  position: relative;
+  width: min(720px, 94vw);
+  height: 240px;
+  background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.05), transparent 32%),
+              radial-gradient(circle at 80% 70%, rgba(255,255,255,0.04), transparent 30%),
+              linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.06));
+  border: 1px solid var(--stroke);
+  border-radius: 18px;
+  box-shadow: 0 16px 46px rgba(0,0,0,0.5);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.chase-stage::after {
+  content: "";
+  position: absolute;
+  left: -6%;
+  right: -6%;
+  bottom: 18px;
+  height: 48px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+  border-radius: 26px 26px 8px 8px;
+  filter: blur(1px);
+}
+
+.gift-flash {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(circle, rgba(255,255,255,0.22), transparent 55%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gift-flash.flash {
+  animation: gift-flash 0.45s ease;
+}
+
+@keyframes gift-flash {
+  0% { opacity: 0; transform: scale(0.8); }
+  25% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0; transform: scale(1.15); }
+}
+
+.runner {
+  position: absolute;
+  bottom: 28px;
+  filter: drop-shadow(0 8px 14px rgba(0,0,0,0.45));
+  transform-origin: center;
+}
+
+.mouse {
+  --body: #d8d8e4;
+  --ear: #f4b8c9;
+  --tail: #f6d3d8;
+  width: 64px;
+  height: 36px;
+  border-radius: 24px 26px 18px 18px;
+  background: linear-gradient(125deg, rgba(255,255,255,0.85), var(--body));
+  left: 52%;
+  transform: translateX(140%);
+  z-index: 2;
+}
+
+.mouse::before {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 12px;
+  background: var(--ear);
+  border-radius: 60% 60% 50% 50%;
+  left: 10px;
+  top: -6px;
+  box-shadow: 18px 2px 0 var(--ear);
+}
+
+.mouse::after {
+  content: "";
+  position: absolute;
+  width: 44px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--tail), transparent);
+  right: -40px;
+  top: 16px;
+  border-radius: 10px;
+  transform-origin: left center;
+}
+
+.cat {
+  --fur1: #f3b56b;
+  --fur2: #e57c5b;
+  width: 96px;
+  height: 60px;
+  background: linear-gradient(120deg, var(--fur1), var(--fur2));
+  border-radius: 30px 40px 28px 28px;
+  left: -12%;
+  transform: translateX(-140%);
+  z-index: 1;
+}
+
+.cat::before,
+.cat::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 22px;
+  background: var(--fur2);
+  top: -8px;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.cat::before { left: 16px; }
+.cat::after { left: 40px; }
+
+.cat .face {
+  position: absolute;
+  right: 10px;
+  top: 16px;
+  width: 32px;
+  height: 22px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 6px;
+}
+
+.cat .face::before,
+.cat .face::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: #111;
+  border-radius: 50%;
+}
+
+.runner.trail::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: -6px;
+  height: 6px;
+  background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.18), transparent 50%),
+              radial-gradient(circle at 70% 40%, rgba(255,255,255,0.12), transparent 55%);
+  filter: blur(2px);
+  opacity: 0.8;
+}
+
+.chase-stage.run .mouse {
+  animation: mouse-run 2.9s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+.chase-stage.run .cat {
+  animation: cat-run 3.1s cubic-bezier(0.16, 0.85, 0.3, 1) forwards;
+}
+
+@keyframes mouse-run {
+  0% { transform: translateX(140%) translateY(0); }
+  32% { transform: translateX(60%) translateY(-10px); }
+  68% { transform: translateX(-40%) translateY(-6px); }
+  100% { transform: translateX(-150%) translateY(0); }
+}
+
+@keyframes cat-run {
+  0% { transform: translateX(-140%) translateY(0); }
+  30% { transform: translateX(-10%) translateY(-8px); }
+  70% { transform: translateX(70%) translateY(-4px); }
+  100% { transform: translateX(140%) translateY(0); }
+}
 @keyframes pulse {
   0% { transform: scaleY(1); opacity: 0.5; }
   50% { transform: scaleY(1.2); opacity: 1; }
@@ -1029,7 +1200,6 @@ body.journey .journey-scroll {
 <div id="pathLayer" style="display:none"></div>
 <div id="journeyScroll" class="journey-scroll" style="display:none"></div>
 <div id="speedWarn">Не спеши, прокручивай плавно</div>
-<audio id="confettiSound" src="/static/confetti.mp3" preload="auto"></audio>
 {% if test_mode %}
 <div class="badge" id="testBadge">
   <span>TEST MODE</span>
@@ -1083,40 +1253,23 @@ body.journey .journey-scroll {
   <section id="congrats">
     <p class="eyebrow">ахиреть крута да?</p>
     <h1 class="headline">ПОЗДРАВЛЯЮ!!!</h1>
-    <p class="lead drift-line">В каком возрасте последний раз задувал свечку?</p>
+    <p class="lead drift-line">Не расслабляйся — подарок уже пытается сбежать.</p>
     <div class="scroll-hint" id="scrollHint" style="display:none">Прокрути вниз</div>
     <button class="glow-btn" id="nextCongrats">Дальше</button>
   </section>
 
-  <section id="candleSection">
-    <h2>Перед тем как задуть — загадай желание</h2>
-    <div class="cake-scene">
-      <div class="cake" id="cake">
-        <div class="cake-layer layer-base"></div>
-        <div class="cake-layer layer-cream"></div>
-        <div class="cake-dots"></div>
-      </div>
-      <div class="candle-hand" id="candleHand">
-        <div class="hand-shape"></div>
-        <div class="match">
-          <div class="match-head"></div>
-        <div class="lighter-flame" id="lighterFlame"></div>
-      </div>
-      </div>
-      <div class="candle-spot">
-        <div class="candle-wrap" id="candleWrap">
-          <div class="candle-body"></div>
-          <div class="flame" id="flame"></div>
-          <div class="age-circle" id="ageCircle">{{ age }}</div>
+  <section id="gift">
+    <p class="eyebrow">Не потеряй</p>
+    <h2>Твой подарок бегает где-то здесь.</h2>
+    <p class="lead">Смотри внимательнее — он не любит ждать.</p>
+    <div class="chase-stage" id="chaseStage">
+      <div class="gift-flash" id="giftFlash"></div>
+      <div class="runner mouse trail" id="mouse"></div>
+      <div class="runner cat trail" id="cat">
+        <div class="face"></div>
       </div>
     </div>
-    </div>
-    <button id="blowButton">Задуть свечу</button>
-    <audio id="popSound" src="/static/pop.mp3" preload="auto"></audio>
-    <audio data-firework-sound id="fw1" src="/static/firework1.mp3" preload="auto"></audio>
-    <audio data-firework-sound id="fw2" src="/static/firework2.mp3" preload="auto"></audio>
-    <audio data-firework-sound id="fw3" src="/static/firework3.mp3" preload="auto"></audio>
-    <audio data-firework-sound id="fw4" src="/static/firework4.mp3" preload="auto"></audio>
+    <button class="glow-btn" id="giftNext">Дальше</button>
   </section>
 
   <section id="wish">
@@ -1155,6 +1308,7 @@ let confettiPieces = [];
 let confettiActive = false;
 let wordParticles = [];
 let wordFired = false;
+let chaseTimer = null;
 const pathLayer = document.getElementById("pathLayer");
 const lifeStats = null; // отключено
 const congratsSection = document.getElementById("congrats");
@@ -1162,9 +1316,13 @@ const journeyScroll = document.getElementById("journeyScroll");
 const speedWarn = document.getElementById("speedWarn");
 const defaultSpeedWarnText = speedWarn?.textContent || "";
 const wishSection = document.getElementById("wish");
+const chaseStage = document.getElementById("chaseStage");
+const mouseEl = document.getElementById("mouse");
+const catEl = document.getElementById("cat");
+const giftFlash = document.getElementById("giftFlash");
+const giftNextBtn = document.getElementById("giftNext");
 const slowExponent = 2.4;
 const savedBirthIso = localStorage.getItem("savedBirthIso") || "";
-const confettiAudio = document.getElementById("confettiSound");
 const wordCanvas = document.getElementById("wordCanvas");
 const wctx = wordCanvas.getContext("2d");
 const fireCanvas = document.getElementById("fireCanvas");
@@ -1190,8 +1348,6 @@ let loaderFrame = null;
 const ageCircle = document.getElementById("ageCircle");
 const candleWrap = document.querySelector(".candle-wrap");
 const flameEl = document.getElementById("flame");
-const popSound = document.getElementById("popSound");
-const fireworkSounds = Array.from(document.querySelectorAll("[data-firework-sound]"));
 let ageAnimationFrame = null;
 let ageRiseDelayTimer = null;
 let candleRevealTimer = null;
@@ -1257,38 +1413,31 @@ function showSection(id) {
     dateDisplay.focus();
     dateDisplay.blur();
   }
-  const isJourney = id === "congrats" || id === "candleSection";
-  if (!isJourney) {
-    journeyStarted = false;
-    journeyDelta = 0;
-    stopConfetti();
-    scrollArmed = false;
-    if (scrollHint) scrollHint.classList.remove("visible");
-    document.body.classList.remove("journey");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    return;
+  if (scrollHint) scrollHint.classList.remove("visible");
+  document.body.classList.remove("journey");
+  stopConfetti();
+  if (id === "gift") {
+    startChase();
   }
-  // поздравление показываем всегда, путь не стартует без явного скролла
-  if (id === "congrats") {
-    journeyStarted = false;
-    journeyDelta = 0;
-    pathProgress = 0;
-    document.body.classList.remove("journey");
-    if (scrollHint) scrollHint.classList.remove("visible");
-  }
-  if (id === "candleSection") {
-    journeyStarted = true;
-    pathProgress = 1;
-    document.body.classList.add("journey");
-    startCandleScene();
-  } else {
-    resetAgeRise();
-  }
-  applyPathProgress();
-  updatePathWords();
-  updateStatsVisibility();
-  syncJourneySections();
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function startChase() {
+  if (!chaseStage) return;
+  if (chaseTimer) clearTimeout(chaseTimer);
+  chaseStage.classList.remove("run");
+  if (giftFlash) giftFlash.classList.remove("flash");
+  if (mouseEl) mouseEl.style.transform = "translateX(140%)";
+  if (catEl) catEl.style.transform = "translateX(-140%)";
+  void chaseStage.offsetWidth; // сбрасываем анимацию
+  const delay = 420 + Math.random() * 900;
+  chaseTimer = setTimeout(() => {
+    chaseStage.classList.add("run");
+    if (giftFlash) {
+      giftFlash.classList.add("flash");
+      setTimeout(() => giftFlash.classList.remove("flash"), 520);
+    }
+  }, delay);
 }
 
 function advance() {
@@ -1565,11 +1714,6 @@ function startConfettiBurst() {
       life: 0,
     };
   });
-  const soundSrc = popSound || confettiAudio;
-  if (soundSrc) {
-    soundSrc.currentTime = 0;
-    soundSrc.play().catch(() => {});
-  }
   requestAnimationFrame(confettiLoop);
 }
 
@@ -1580,7 +1724,6 @@ function triggerConfetti() {
 let fireParticles = [];
 let fireActive = false;
 let fireQueue = [];
-let fireSoundIdx = 0;
 
 function startFireworks() {
   if (!fireCanvas) return;
@@ -1619,37 +1762,7 @@ function launchNextFirework() {
 }
 
 function playFireworkSounds() {
-  if (!fireworkSounds.length) return;
-  const audio = fireworkSounds[fireSoundIdx % fireworkSounds.length];
-  fireSoundIdx += 1;
-  try {
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-  } catch (e) {}
-  setTimeout(() => {
-    const next = fireworkSounds[fireSoundIdx % fireworkSounds.length];
-    fireSoundIdx += 1;
-    try {
-      next.currentTime = 0;
-      next.play().catch(() => {});
-    } catch (e) {}
-  }, 320);
-  setTimeout(() => {
-    const next = fireworkSounds[fireSoundIdx % fireworkSounds.length];
-    fireSoundIdx += 1;
-    try {
-      next.currentTime = 0;
-      next.play().catch(() => {});
-    } catch (e) {}
-  }, 620);
-  setTimeout(() => {
-    const next = fireworkSounds[fireSoundIdx % fireworkSounds.length];
-    fireSoundIdx += 1;
-    try {
-      next.currentTime = 0;
-      next.play().catch(() => {});
-    } catch (e) {}
-  }, 900);
+  return; // звуки убраны
 }
 
 function fireLoop() {
@@ -1800,6 +1913,11 @@ function resetFlow() {
   }
   feedback.textContent = "";
   wordFired = false;
+  if (chaseTimer) clearTimeout(chaseTimer);
+  if (chaseStage) chaseStage.classList.remove("run");
+  if (giftFlash) giftFlash.classList.remove("flash");
+  if (mouseEl) mouseEl.style.transform = "translateX(140%)";
+  if (catEl) catEl.style.transform = "translateX(-140%)";
   fireActive = false;
   fireParticles = [];
   fireQueue = [];
@@ -1842,8 +1960,8 @@ function resetFlow() {
 }
 
 document.getElementById("confirmBtn").addEventListener("click", checkBirth);
-document.getElementById("blowButton").addEventListener("click", blowOut);
-document.getElementById("nextCongrats").addEventListener("click", () => showSection("candleSection"));
+document.getElementById("nextCongrats").addEventListener("click", () => showSection("gift"));
+giftNextBtn?.addEventListener("click", () => showSection("wish"));
 passportNextBtn?.addEventListener("click", () => showSection("congrats"));
 document.addEventListener("wheel", handleScroll, { passive: true });
 document.addEventListener("touchstart", handleTouchStart, { passive: true });
@@ -1956,16 +2074,13 @@ function startCandleScene() {
     void cake.offsetWidth;
     cake.classList.add("building");
   }
-  // step 1: bring hand + candle after cake assembles (свеча ещё не горит)
   candleTimers.push(setTimeout(() => {
     candleWrap.classList.add("slide-in", "pop-in");
     if (candleHand) candleHand.classList.add("move-in");
   }, 850));
-  // step 2: зажечь спичку
   candleTimers.push(setTimeout(() => {
     if (lighterFlame) lighterFlame.classList.add("ignite");
   }, 1150));
-  // step 3: поджечь свечу после спички
   candleTimers.push(setTimeout(() => {
     if (flameEl) {
       flameEl.classList.remove("out");
@@ -2075,7 +2190,7 @@ function handleJourneyScroll() {
 
 function isJourneyActive() {
   const id = sections[currentIndex]?.id;
-  return id === "congrats" || id === "candleSection";
+  return id === "congrats" || id === "gift";
 }
 
 function startJourney() {

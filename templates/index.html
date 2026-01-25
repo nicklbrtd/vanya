@@ -1258,6 +1258,32 @@ body.journey .journey-scroll {
     <button class="glow-btn" id="nextCongrats">Дальше</button>
   </section>
 
+  <section id="candleSection">
+    <h2>Перед тем как задуть — загадай желание</h2>
+    <div class="cake-scene">
+      <div class="cake" id="cake">
+        <div class="cake-layer layer-base"></div>
+        <div class="cake-layer layer-cream"></div>
+        <div class="cake-dots"></div>
+      </div>
+      <div class="candle-hand" id="candleHand">
+        <div class="hand-shape"></div>
+        <div class="match">
+          <div class="match-head"></div>
+          <div class="lighter-flame" id="lighterFlame"></div>
+        </div>
+      </div>
+      <div class="candle-spot">
+        <div class="candle-wrap" id="candleWrap">
+          <div class="candle-body"></div>
+          <div class="flame" id="flame"></div>
+          <div class="age-circle" id="ageCircle">{{ age }}</div>
+        </div>
+      </div>
+    </div>
+    <button id="blowButton">Задуть свечу</button>
+  </section>
+
   <section id="gift">
     <p class="eyebrow">Не потеряй</p>
     <h2>Твой подарок бегает где-то здесь.</h2>
@@ -1416,6 +1442,9 @@ function showSection(id) {
   if (scrollHint) scrollHint.classList.remove("visible");
   document.body.classList.remove("journey");
   stopConfetti();
+  if (id === "candleSection") {
+    startCandleScene();
+  }
   if (id === "gift") {
     startChase();
   }
@@ -1960,7 +1989,8 @@ function resetFlow() {
 }
 
 document.getElementById("confirmBtn").addEventListener("click", checkBirth);
-document.getElementById("nextCongrats").addEventListener("click", () => showSection("gift"));
+document.getElementById("nextCongrats").addEventListener("click", () => showSection("candleSection"));
+document.getElementById("blowButton").addEventListener("click", blowOut);
 giftNextBtn?.addEventListener("click", () => showSection("wish"));
 passportNextBtn?.addEventListener("click", () => showSection("congrats"));
 document.addEventListener("wheel", handleScroll, { passive: true });

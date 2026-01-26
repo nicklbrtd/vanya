@@ -347,10 +347,10 @@ button:active { transform: translateY(0); }
   transform: translateY(0);
 }
 
-.glow-btn:hover {
-  box-shadow: 0 14px 36px rgba(255,255,255,0.18);
-  transform: translateY(-2px);
-}
+  .glow-btn:hover {
+    box-shadow: 0 14px 36px rgba(255,255,255,0.18);
+    transform: translateY(-2px);
+  }
 
 .glow-btn:active {
   transform: translateY(0);
@@ -1191,10 +1191,19 @@ body.journey .journey-scroll {
   .age-circle { right: -26px; width: 52px; height: 52px; font-size: 20px; }
   .candle-wrap { height: 200px; }
 }
+
+/* cursor glow field */
+.cursor-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
 </style>
 </head>
 <body data-birth="{{ birth_iso }}" data-age="{{ age }}" data-test="{{ 1 if test_mode else 0 }}">
 <canvas id="confettiCanvas" class="confetti-layer"></canvas>
+<canvas id="glowCanvas" class="confetti-layer"></canvas>
 <canvas id="fireCanvas" class="confetti-layer"></canvas>
 <canvas id="wordCanvas" class="confetti-layer"></canvas>
 <div id="pathLayer" style="display:none"></div>
@@ -1255,11 +1264,11 @@ body.journey .journey-scroll {
     <h1 class="headline">ПОЗДРАВЛЯЮ!!!</h1>
     <p class="lead drift-line">Возможно будет тебе подарок, но сначала...</p>
     <div class="scroll-hint" id="scrollHint" style="display:none"></div>
-    <button class="glow-btn" id="nextCongrats">Дальше</button>
+    <button class="glow-btn" id="nextCongrats">ЧТО СНАЧАЛА?</button>
   </section>
 
   <section id="candleSection">
-    <h2>Перед тем как задуть — загадай желание</h2>
+    <h2>Сначала загадай желание и задуй свечку!</h2>
     <div class="cake-scene">
       <div class="cake" id="cake">
         <div class="cake-layer layer-base"></div>
@@ -1287,7 +1296,7 @@ body.journey .journey-scroll {
   <section id="gift">
     <p class="eyebrow">ПОДАРОЧЕК</p>
     <h2>К сожалению, нет возможности подарить настоящего котика и крысу.</h2>
-    <p class="lead">Твой подарок будет тут :0</p>
+    <p class="lead">Поэтому твои питомцы будут тут :0</p>
     <div class="chase-stage" id="chaseStage">
       <div class="gift-flash" id="giftFlash"></div>
       <div class="runner mouse trail" id="mouse"></div>
